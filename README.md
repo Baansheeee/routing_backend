@@ -7,10 +7,43 @@ Django + DRF API. Business logic lives in `routing/services/`.
 ```powershell
 cd backend
 .\venv\Scripts\Activate.ps1
-# Ensure backend\.env exists (not only venv\.env)
+copy .env.example .env
+# Edit .env — set DJANGO_SECRET_KEY and MAPBOX_TOKEN
 python manage.py migrate
 python manage.py runserver
 ```
+
+## Deploy on Render
+
+1. Push this repo to GitHub (**do not commit `.env`**).
+2. [Render Dashboard](https://dashboard.render.com) → **New** → **Web Service** → connect the repo.
+3. Configure:
+
+| Field | Value |
+|--------|--------|
+| Runtime | Python 3 |
+| Build Command | `bash build.sh` |
+| Start Command | `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2` |
+
+4. Add environment variables (same names as `.env.example`):
+
+| Key | Production value |
+|-----|------------------|
+| `DJANGO_SECRET_KEY` | Long random string |
+| `DJANGO_DEBUG` | `False` |
+| `DJANGO_ALLOWED_HOSTS` | `your-service.onrender.com` |
+| `CORS_ALLOWED_ORIGINS` | `https://your-frontend.vercel.app,http://localhost:5173` |
+| `CSRF_TRUSTED_ORIGINS` | Same URLs **with** `https://` / `http://` |
+| `MAPBOX_TOKEN` | Your Mapbox public token |
+| `OPEN_METEO_BASE_URL` | `https://api.open-meteo.com/v1/forecast` |
+| `CHECKPOINT_INTERVAL_MILES` | `25` |
+| `WEATHER_CACHE_SECONDS` | `1800` |
+| `PYTHON_VERSION` | `3.12.8` (optional; `runtime.txt` also sets this) |
+
+5. Deploy, then open `https://your-service.onrender.com/api/health` → `{"status":"ok"}`.
+6. Point the frontend `VITE_API_URL` to `https://your-service.onrender.com/api`.
+
+SQLite is fine for this assignment; the Render disk is ephemeral (DB resets on redeploy).
 
 ## Risk boundary conventions
 
