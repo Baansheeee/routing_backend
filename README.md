@@ -45,6 +45,22 @@ python manage.py runserver
 
 SQLite is fine for this assignment; the Render disk is ephemeral (DB resets on redeploy).
 
+## Deploy on AWS EC2
+
+See **[`deploy/README.md`](deploy/README.md)** for the full guide.
+
+Quick path on a fresh Ubuntu EC2 (after `git clone`):
+
+```bash
+cd routing_backend
+bash deploy/setup_ec2.sh
+nano .env   # DEBUG=False, ALLOWED_HOSTS=<ec2-ip>, MAPBOX_TOKEN, CORS
+sudo systemctl restart routing
+curl http://127.0.0.1/api/health
+```
+
+Templates: `deploy/routing.service`, `deploy/nginx.conf`.
+
 ## Risk boundary conventions
 
 Levels: `LOW(1) < MODERATE(2) < HIGH(3) < SEVERE(4) < NO_TRAVEL(5)`

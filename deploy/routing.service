@@ -1,0 +1,20 @@
+[Unit]
+Description=Weather-Aware Truck Routing API (Gunicorn)
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/routing_backend
+EnvironmentFile=/home/ubuntu/routing_backend/.env
+# Unix socket for Nginx; increase timeout for /api/analyze + /api/heatmap
+ExecStart=/home/ubuntu/routing_backend/venv/bin/gunicorn \
+    --workers 2 \
+    --timeout 120 \
+    --bind unix:/home/ubuntu/routing_backend/gunicorn.sock \
+    config.wsgi:application
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
